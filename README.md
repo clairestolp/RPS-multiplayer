@@ -29,7 +29,7 @@ To create an application that can store and retrieve information from a database
 ## Approach
 
 
-##Planning
+## Planning
 
 <details>
 <summary>Login</summary>
