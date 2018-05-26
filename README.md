@@ -28,14 +28,8 @@ To create an application that can store and retrieve information from a database
 
 ## Approach
 
-* When the two users input their choice, an animation plays in 3 stages 
-1. "Saisho wa gu..." 
 
-2. "...janken Poi!"
-
-3. results are displayed.
-
-##planning
+##Planning
 
 <details>
 <summary>Login</summary>
@@ -57,7 +51,14 @@ To create an application that can store and retrieve information from a database
 <summary>Once both users have chosen...</summary>
 
 * "Saisho wa gu, Janken Poi" animations is played
-* Results are displayed
+    ** When the two users input their choice, an animation plays in 3 stages 
+
+    1. "Saisho wa gu..." 
+
+    2. "...janken Poi!"
+
+    3. results are displayed.
+
 * data base is updated 
 * a button appears to start a new match
 </details>
