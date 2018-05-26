@@ -44,20 +44,21 @@ To create an application that can store and retrieve information from a database
     ** This array has 5 properties: username (string), wins(int), loses(int), choice(string/num), isPaired(bool)
 </details>
 <details>
-    <summary>footer</summary>
-    * Each page has a footer that contains the current online users. Upon hover a tooltip appears that displays that player's current wins and loses
-</details>
-<details>
     <summary>make a choice</summary>
     * Upon login a navbar is displayed that shows the user and their current score with a logout btn
+    * chat bar appears (chat history stored as localStorage)
     * The user and their opponent's name is displayed
     * Under the name is a container element that will display their choice with a message that says "you have not yet choosen" and "username has not yet chosen" that will change once a choice has been made 
     * under the players is a div that holds the choices that when clicked will store the user's choice 
 </details>
 <details>
-    <summary>Once both users have chosen...<summary>
+    <summary>Once both users have chosen...</summary>
     * "Saisho wa gu, Janken Poi" animations is played
     * Results are displayed
     * data base is updated 
     * a button appears to start a new match
+</details>
+<details>
+    <summary>footer</summary>
+    * Each page has a footer that contains the current online users. Upon hover a tooltip appears that displays that player's current wins and loses
 </details>
