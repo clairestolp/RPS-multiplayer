@@ -6,17 +6,19 @@
     <title>Janken: The Multiplayer RPS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" media="screen" href="assets/css/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
 </head>
 
 <body>
-    <div>
+    <div class="text-center">
         <h1>JANKEN POI!</h1>
         <p>A multiplayer rock-paper-scissors game</p>
     </div>
-    <div id="display">
+    <div id="userNav"></div>
+    <div id="display" class="container">
         <!--dynamic html here-->
     </div>
     
@@ -24,6 +26,7 @@
 
 <footer>
     <!--display currently online users-->
+    <span>Online Users: </span>
 </footer>
 
 <script src="assets/JS/app.js"></script>
