@@ -9,6 +9,17 @@ var config = {
 };
 
 firebase.initializeApp(config);
+var database = firebase.database();
+var connectionsRef = database.ref('/connections');
+var connectedRef = database.ref('.info/connected');
+
+var $display = $('#display');
+var user, userRef, userId, opponent, opponentId;
+var usersRef = database.ref('/users');
+console.log(usersRef);
+
+//checks for users arr in firebase
+
 
 var rps = {
     user: undefined,
@@ -50,33 +61,38 @@ var rps = {
 
 }
 
-var database = firebase.database();
-var $display = $('#display');
-var connectionsRef = database.ref('/connections');
-var connectedRef = database.ref('.info/connected');
-var user, opponent;
-var users;
 
-//dev user and opponent DELETE FOR PRODUCTION
-
-rps.user = {
-    name: 'Claire',
-    wins: 0,
-    loses: 0, 
-    ties: 0,
-    choice: '',
-    isPaired: false
+function isLoggedIn() {
+    return new Promise(function(resolve, reject) {  
+        //updates firebase and stores they id of the pushed user in userId
+        userRef = database.ref('/users').push(rps.user);
+        console.log('userRef', userRef);
+        database.ref('/users').child(userRef.key).once('value', function (snap) {
+            console.log(snap.val());
+            if (snap.val() !== null){
+                resolve('this user exists!');
+            }else{
+                reject('something happened!');
+            }
+        });
+    });
 }
 
-opponent = {
-    name: 'bot',
-    wins: 0,
-    loses: 0,
-    ties: 0,
-    choice: ''
-}
+connectedRef.on('value', function (snap) {
+    var con;
+    if(snap.val()) {
+        con = connectionsRef.push(true);
+        console.log(con);
+        console.log('you are connected');
+    }
+    con.onDisconnect().remove();
+    database.ref('/users')
+});
 
-/*
+connectionsRef.on('value', function(snap) {
+    console.log(snap.numChildren());
+});
+
 function loginScreen (){
     $display
     .empty()
@@ -98,111 +114,117 @@ function loginScreen (){
         $display.append(container);
 }
 
-var userLogin = function() {
-    $('#login').on('click', function () {
-        event.preventDefault();
+function appendNav (user) {
+    var nav = rps.elements.nav;
+    var list = $('<ul>').addClass('nav');
+    var username = $('<li>').addClass('nav-item').text('Hi ' + user.name);
+    var wins = $('<li>').addClass('nav-item');
+    var loses = $('<li>').addClass('nav-item');
+    var ties = $('<li>').addClass('nav-item');
+    var logout = $('<button>').addClass('btn btn-light float-right').text("Logout").attr('id', 'logout');
 
-        rps.user = {
-            name: $('#username-input').val().trim(),
-            wins: 0,
-            losses: 0,
-            choice: '',
-            isPaired: false
-        };
+    wins.attr('id', 'wins').text('Wins: ' + user.wins);
+    loses.attr('id', 'loses').text('Loses: ' + user.loses);
+    ties.attr('id', 'ties').text('Ties: ' + user.ties);
+
+    list
+        .append(username)
+        .append(wins)
+        .append(loses)
+        .append(ties);
     
-        $display.empty();
-    });
+    nav
+        .append(list)
+        .append(logout);
+
+    $display
+        .append(nav);
 }
-*/
 
-    function appendNav (user) {
-        var nav = rps.elements.nav;
-        var list = $('<ul>').addClass('nav');
-        var username = $('<li>').addClass('nav-item').text('Hi ' + user.name);
-        var wins = $('<li>').addClass('nav-item');
-        var loses = $('<li>').addClass('nav-item');
-        var ties = $('<li>').addClass('nav-item');
-        var logout = $('<button>').addClass('btn btn-light float-right').text("Logout").attr('id', 'logout');
+function battleScreen() {
+    var elem = rps.elements;
+    var rowA = $('<div>').addClass('row align-items-center mb-4')
+    var col1a = $('<div>').addClass('col-md-5');
+    var col2a = $('<div>').addClass('col-md-2 d-flex align-items-center justify-content-center');
+    var col3a = $('<div>').addClass('col-md-5');
+    var rowB = $('<div>').addClass('row align-items-center mb-3')
+    var col1b = $('<div>').addClass('col-md-4 choice-btn').html(rps.choices[1]);
+    var col2b = $('<div>').addClass('col-md-4 choice-btn').html(rps.choices[2]);
+    var col3b = $('<div>').addClass('col-md-4 choice-btn').html(rps.choices[3]);
+    var rowC = $('<div>').addClass('row justify-content-center');
+    var col1c = $('<div>').addClass('col-md-4');
+    var button = $('<button>').addClass('btn btn-dark mt-2').attr('id', 'userChoice').text('Janken POI!')
 
-        wins.attr('id', 'wins').text('Wins: ' + user.wins);
-        loses.attr('id', 'loses').text('Loses: ' + user.loses);
-        ties.attr('id', 'ties').text('Ties: ' + user.ties);
+    $display.removeClass('d-flex align-items-center justify-content-center');
+    
+    rps.elements.header.text('Ready to Janken?');
 
-        list
-            .append(username)
-            .append(wins)
-            .append(loses)
-            .append(ties);
+    elem.userChoice
+        .append(rps.choices[0]);
+    elem.opponentChoice
+        .append(rps.choices[0]);
+    elem.userDiv
+        .addClass('d-flex flex-column align-items-center justify-content-center')
+        .append(elem.userChoice);
+    elem.opponentDiv
+        .addClass('d-flex flex-column align-items-center justify-content-center')
+        .append(elem.opponentChoice);
+
+    col1a.append(elem.userDiv);
+    col2a.append($('<h1>').text('VS').addClass('text-center'));
+    col3a.append(elem.opponentDiv)
         
-        nav
-            .append(list)
-            .append(logout);
+    rowA
+        .append(col1a)
+        .append(col2a)
+        .append(col3a);
 
-        $display
-            .append(nav);
-    }
+    rowB    
+        .append(col1b)
+        .append(col2b)
+        .append(col3b);
 
-    //userResponse should be the index of the choices array that corresponds to the user's selection
-    function battleScreen() {
-        var elem = rps.elements;
-        var rowA = $('<div>').addClass('row align-items-center mb-4')
-        var col1a = $('<div>').addClass('col-md-5');
-        var col2a = $('<div>').addClass('col-md-2 d-flex align-items-center justify-content-center');
-        var col3a = $('<div>').addClass('col-md-5');
-        var rowB = $('<div>').addClass('row align-items-center mb-3')
-        var col1b = $('<div>').addClass('col-md-4 choice-btn').html(rps.choices[1]);
-        var col2b = $('<div>').addClass('col-md-4 choice-btn').html(rps.choices[2]);
-        var col3b = $('<div>').addClass('col-md-4 choice-btn').html(rps.choices[3]);
-        var rowC = $('<div>').addClass('row justify-content-center');
-        var col1c = $('<div>').addClass('col-md-4');
-        var button = $('<button>').addClass('btn btn-dark mt-2').attr('id', 'userChoice').text('Janken POI!')
-       
-        rps.elements.header.text('Ready to Janken?');
+    col1c.append(button);
 
-        elem.userChoice
-            .append(rps.choices[0]);
-        elem.opponentChoice
-            .append(rps.choices[0]);
-        elem.userDiv
-            .addClass('d-flex flex-column align-items-center justify-content-center')
-            .append(elem.userChoice);
-        elem.opponentDiv
-            .addClass('d-flex flex-column align-items-center justify-content-center')
-            .append(elem.opponentChoice);
+    rowC
+        .append(col1c);
+    
+    $display
+        .append($(rps.elements.header))
+        .append(rowA)
+        .append(rowB)
+        .append(rowC);
+}
 
-        col1a.append(elem.userDiv);
-        col2a.append($('<h1>').text('VS').addClass('text-center'));
-        col3a.append(elem.opponentDiv)
-            
-        rowA
-            .append(col1a)
-            .append(col2a)
-            .append(col3a);
+loginScreen();
 
-        rowB    
-            .append(col1b)
-            .append(col2b)
-            .append(col3b);
+$('#login').on('click', function () {
+    event.preventDefault();
+    //create a new user
+    rps.user = {
+        name: $('#username-input').val().trim(),
+        wins: 0,
+        losses: 0,
+        choice: '',
+        isPaired: false
+    };
 
-        col1c.append(button);
+    isLoggedIn().then(function (results) {
+        console.log(results);
+        console.log('user name: ', rps.user.name);
+        console.log('userId:', userId);
 
-        rowC
-            .append(col1c);
-        
-        $display
-            .append($(rps.elements.header))
-            .append(rowA)
-            .append(rowB)
-            .append(rowC);
-    }
+        $display.empty();
+        appendNav(rps.user);
+        battleScreen();
+
+    }, function (err) {
+        console.log(err);
+    });
+});
 
 
-//console.log(users);
-//loginScreen();
-//userLogin();
-appendNav(rps.user);
-battleScreen(0, 0);
-rps.bot();
+
 
 $('.choice-btn > i').on('click', function (){
     user.choice = $(this).attr('data-choice');
@@ -213,10 +235,6 @@ $('.choice-btn > i').on('click', function (){
         .append(rps.choices[index]);
 });
 
-$('#userChoice').on('click', function () {
-    //update database w/ user choice
-    
-});
 
 
 
